@@ -46,7 +46,7 @@ class Account(object):
             data=json.dumps(query), 
             headers=self._build_token()
             )
-        print (response)
+
         return response.json()
 
     def _serialize_header(self, properties):
@@ -72,7 +72,6 @@ class Account(object):
             "Created": created,
         }
         header = 'UsernameToken ' + self._serialize_header(properties)
-        print(header)
 
         return {'X-WSSE': header}
 
