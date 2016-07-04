@@ -126,12 +126,16 @@ class Query(object):
         return self
 
     @immutable
-    def ranked(self, metrics, elements):
+    def ranked(self, metrics, elements, top=None):
         self._serialize_values(metrics, 'metrics')
 
         self.report = reports.RankedReport
         self.raw['metrics'] = self._serialize_values(metrics, 'metrics')
         self.raw['elements'] = self._serialize_values(elements, 'elements')
+
+        if top:
+            self.raw['elements'][0]['top'] = top
+        print(self.raw['elements'])
         return self
 
     @immutable
