@@ -1,14 +1,30 @@
 import requests
 import binascii
 import time
-import sha
+import hashlib
 import json
 from datetime import datetime
-from elements import Value, Element, Segment
-from query import Query
-import utils
+from .elements import Value, Element, Segment
+from .query import Query
+import base64
+import os
+from math import floor
+
+import omniture.utils as utils
 
 # encoding: utf-8
+
+def gen_nonce(length):
+   """ Generates a random string of bytes, base64 encoded """
+   if length < 1:
+      return ''
+   string=base64.b64encode(os.urandom(length),altchars=b'-_')
+   b64len=4*floor(length)
+   if length%3 == 1:
+      b64len+=2
+   elif length%3 == 2:
+      b64len+=3
+   return string[0:b64len].decode()
 
 class Account(object):
     DEFAULT_ENDPOINT = 'https://api.omniture.com/admin/1.3/rest/'
@@ -21,13 +37,16 @@ class Account(object):
         suites = [Suite(suite['site_title'], suite['rsid'], self) for suite in data]
         self.suites = utils.AddressableList(suites)
 
-    def request(self, api, method, query={}):
+    def request(self, api, method, query=None):
+        if query is None:
+            query = {}
         response = requests.post(
             self.endpoint, 
             params={'method': api + '.' + method}, 
             data=json.dumps(query), 
             headers=self._build_token()
             )
+        print (response)
         return response.json()
 
     def _serialize_header(self, properties):
@@ -37,25 +56,31 @@ class Account(object):
         return ', '.join(header)
 
     def _build_token(self):
-        nonce = str(time.time())
-        base64nonce = binascii.b2a_base64(binascii.a2b_qp(nonce))
-        created_date = datetime.today().isoformat() + 'Z'
-        sha_object = sha.new(nonce + created_date + self.secret)
-        password_64 = binascii.b2a_base64(sha_object.digest())
+
+        nonce = gen_nonce(64)
+        nonce_d64 = base64.b64encode(nonce.encode()).decode()
+        created = datetime.today().isoformat() + 'Z'
+        code = nonce + created + self.secret
+
+        passwd = base64.b64encode(hashlib.sha1(code.encode()).digest()).decode()
+
 
         properties = {
             "Username": self.username, 
-            "PasswordDigest": password_64.strip(),
-            "Nonce": base64nonce.strip(),
-            "Created": created_date,
+            "PasswordDigest": passwd,
+            "Nonce": nonce_d64,
+            "Created": created,
         }
         header = 'UsernameToken ' + self._serialize_header(properties)
+        print(header)
 
         return {'X-WSSE': header}
 
 
 class Suite(Value):
-    def request(self, api, method, query={}):
+    def request(self, api, method, query=None):
+        if query is None:
+            query = {}
         raw_query = {}
         raw_query.update(query)
         if 'reportDescription' in raw_query:

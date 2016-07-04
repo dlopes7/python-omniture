@@ -1,11 +1,13 @@
 # encoding: utf-8
 
-from account import Account, Suite
-from elements import Value, Element, Segment
-from query import Query
-from reports import InvalidReportError, Report, OverTimeReport, \
+
+from .account import Account, Suite
+from .elements import Value, Element, Segment
+from .query import Query
+from .reports import InvalidReportError, Report, OverTimeReport, \
     RankedReport, TrendedReport, DataWarehouseReport
 
+import omniture.utils
 
 def authenticate(username, secret=None, endpoint=Account.DEFAULT_ENDPOINT, prefix='', suffix=''):
     # if no secret is specified, we will assume that instead 

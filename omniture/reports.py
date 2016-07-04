@@ -1,12 +1,12 @@
 # encoding: utf-8
 
-from elements import Value, Element, Segment
-import utils
+from .elements import Value, Element, Segment
+import omniture.utils as utils
 
 
 class InvalidReportError(Exception):
     def normalize(self, error):
-        print 'error', error
+        print ('error', error)
 
         if 'error_msg' in error:
             return {

@@ -4,9 +4,9 @@ import time
 from copy import copy
 import functools
 from dateutil.relativedelta import relativedelta
-from elements import Value, Element, Segment
-import reports
-import utils
+from .elements import Value, Element, Segment
+import omniture.reports as reports
+import omniture.utils as utils
 
 
 def immutable(method):
@@ -109,7 +109,7 @@ class Query(object):
     def sort(self, facet):
         #self.raw['sortBy'] = facet
         raise NotImplementedError()
-        return self
+
 
     @immutable
     def filter(self, segments=None, segment=None):

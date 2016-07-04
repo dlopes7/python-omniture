@@ -1,11 +1,14 @@
 # encoding: utf-8
 
-import utils
+import omniture.utils as utils
 from copy import copy
 
 
 class Value(object):
-    def __init__(self, title, id, parent, extra={}):
+    def __init__(self, title, id, parent, extra=None):
+
+        if extra is None:
+            extra = {}
         self.title = title
         self.id = id
         self.parent = parent
@@ -40,7 +43,7 @@ class Element(Value):
         if l == 1:
             start = 0
             stop = vargs[0]
-        elif l == 2:
+        else:
             start, stop = vargs
 
         top = stop - start
