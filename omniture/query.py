@@ -135,7 +135,7 @@ class Query(object):
 
         if top:
             self.raw['elements'][0]['top'] = top
-        print(self.raw['elements'])
+
         return self
 
     @immutable
